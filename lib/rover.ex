@@ -3,14 +3,12 @@ defmodule Rover do
   get line inputs, put them in list, throw out first element (top right cords)
   chunk list by every two elements to get pairs of [starting_coords, sequence], process each pair
   """
-
   def get_input() do
     input =
       IO.stream(:stdio, :line)
       |> Stream.take_while(&(&1 != ":done\n"))
       |> Enum.to_list()
-      |> Enum.map(fn x -> String.trim(x) end)
-      |> Enum.map(fn x -> String.replace(x, " ", "") end)
+      |> Enum.map(fn x -> String.replace(x, ~r/[[:space:]]/, "") end)
 
     # Top right coords don't matter since we can assume (based on the problem description) that any move
     # will keep a rover within the boundaries of the plateau.
@@ -21,7 +19,6 @@ defmodule Rover do
     Enum.chunk_every(t, 2)
     |> Enum.reduce([], fn set, acc -> [process_set(set) | acc] end)
     |> Enum.reverse()
-    |> Enum.each(fn x -> IO.puts(x) end)
   end
 
   def process_set([
