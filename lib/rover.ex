@@ -17,74 +17,88 @@ defmodule Rover do
     result = Enum.chunk_every(t, 2)
     # result example = [["12N", "MMRMMRMRRM"], ["33E", "MMRMMRMLLM"]]
     Enum.reduce(result, [], fn set, acc -> [process_set(set) | acc] end)
-    # example: reduce give list of final coord lists: [[3, 3, "E"], [5, 1, "S"]]
+    |> Enum.reverse()
+
+    # example: reduce give list of final coord lists: [[3 3 E], [5 1 S]]
   end
 
   def process_set([starting, instructions]) do
     <<x::binary-size(1), y::binary-size(1), direction::binary-size(1)>> = starting
     instructions = String.graphemes(instructions)
-    process_step({x, y}, direction, instructions)
+    process_step({String.to_integer(x), String.to_integer(y)}, direction, instructions)
   end
 
-  def process_step({x, y}, direction, nil) do
-    [x, y, direction]
+  def process_step({x, y}, direction, []) do
+    "#{x} #{y} #{direction}"
   end
 
   @doc """
   Turn Right functions
   """
-  def process_step({x, y}, "N" = direction, [h = "R" | t]) do
+  def process_step({x, y}, "N", [_h = "R" | t]) do
     # direction now :E
     # call process_step() with tail
+    process_step({x, y}, "E", t)
   end
 
-  def process_step({x, y}, "E" = direction, [h = "R" | t]) do
-    # direction now :Ss
+  def process_step({x, y}, "E", [_h = "R" | t]) do
+    # direction now :S
+    process_step({x, y}, "S", t)
   end
 
-  def process_step({x, y}, "S" = direction, [h = "R" | t]) do
+  def process_step({x, y}, "S", [_h = "R" | t]) do
     # direction now :W
+    process_step({x, y}, "W", t)
   end
 
-  def process_step({x, y}, "W" = direction, [h = "R" | t]) do
+  def process_step({x, y}, "W", [_h = "R" | t]) do
     # direction now :N
+    process_step({x, y}, "N", t)
   end
 
   @doc """
   Turn Left functions
   """
-  def process_step({x, y}, "N" = direction, [h = "L" | t]) do
+  def process_step({x, y}, "N", [_h = "L" | t]) do
     # direction now :W
+    process_step({x, y}, "W", t)
   end
 
-  def process_step({x, y}, "E" = direction, [h = "L" | t]) do
+  def process_step({x, y}, "E", [_h = "L" | t]) do
     # direction now :N
+    process_step({x, y}, "N", t)
   end
 
-  def process_step({x, y}, "S" = direction, [h = "L" | t]) do
+  def process_step({x, y}, "S", [_h = "L" | t]) do
     # direction now :E
+    process_step({x, y}, "E", t)
   end
 
-  def process_step({x, y}, "W" = direction, [h = "L" | t]) do
+  def process_step({x, y}, "W", [_h = "L" | t]) do
     # direction now :S
+    process_step({x, y}, "S", t)
   end
 
   @doc """
   Move functions
   """
-  def process_step({x, y}, "N", [h = "M" | t]) do
+  def process_step({x, y}, "N", [_h = "M" | t]) do
     # y + 1
+    process_step({x, y + 1}, "N", t)
   end
 
-  def process_step({x, y}, "E", [h = "M" | t]) do
+  def process_step({x, y}, "E", [_h = "M" | t]) do
     # x + 1
+    process_step({x + 1, y}, "E", t)
   end
 
-  def process_step({x, y}, "S", [h = "M" | t]) do
+  def process_step({x, y}, "S", [_h = "M" | t]) do
     # y - 1
+    process_step({x, y - 1}, "S", t)
   end
 
-  def process_step({x, y}, "W", [h = "M" | t]) do
+  def process_step({x, y}, "W", [_h = "M" | t]) do
     # x -1
+    process_step({x - 1, y}, "W", t)
   end
 end
